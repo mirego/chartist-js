@@ -518,9 +518,9 @@ var Chartist = {
     };
   };
 
-  Chartist.getMetaData = function(series, index) {
+  Chartist.getDataFromSelector = function(series, index, selector) {
     var value = series.data ? series.data[index] : series[index];
-    return value ? value.meta : undefined;
+    return value ? value[selector] : undefined;
   };
 
   /**
@@ -3414,7 +3414,7 @@ var Chartist = {
         pathData.push({
           value: value,
           valueIndex: valueIndex,
-          meta: Chartist.getMetaData(series, valueIndex)
+          meta: Chartist.getDataFromSelector(series, valueIndex, 'meta')
         });
       }.bind(this));
 
@@ -4004,12 +4004,14 @@ var Chartist = {
         positions.y1 = Math.min(Math.max(positions.y1, chartRect.y2), chartRect.y1);
         positions.y2 = Math.min(Math.max(positions.y2, chartRect.y2), chartRect.y1);
 
-        var metaData = Chartist.getMetaData(series, valueIndex);
+        var metaData = Chartist.getDataFromSelector(series, valueIndex, 'meta');
+        var parametersData = Chartist.getDataFromSelector(series, valueIndex, 'parameters');
 
         // Create bar element
         bar = seriesElement.elem('line', positions, options.classNames.bar).attr({
           'ct:value': [value.x, value.y].filter(Chartist.isNumeric).join(','),
-          'ct:meta': Chartist.serialize(metaData)
+          'ct:meta': Chartist.serialize(metaData),
+          'ct:parameters': Chartist.serialize(parametersData)
         });
 
         this.eventEmitter.emit('draw', Chartist.extend({
@@ -4017,6 +4019,7 @@ var Chartist = {
           value: value,
           index: valueIndex,
           meta: metaData,
+          parameters: parametersData,
           series: series,
           seriesIndex: seriesIndex,
           axisX: axisX,
